@@ -63,3 +63,5 @@ GoogleService-Info.plist
 
 # Macos build
 macos/Flutter/ephemeral/
+locallink-release.apk
+locallink.zip
