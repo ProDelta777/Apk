@@ -229,7 +229,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         title: Text('app_title'.tr()),
         centerTitle: true,
         actions: [
-          IconButton(icon: const Icon(Icons.language), onPressed: () { if (context.locale.languageCode == "en") { context.setLocale(const Locale("hi", "IN")); } else { context.setLocale(const Locale("en", "US")); } }),
+          IconButton(icon: const Icon(Icons.language), onPressed: () { if (context.locale.languageCode == "en") { context.setLocale(const Locale("hi")); } else { context.setLocale(const Locale("en")); } }),
         ],
       ),
       body: SafeArea(

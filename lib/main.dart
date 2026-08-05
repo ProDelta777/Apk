@@ -9,9 +9,9 @@ void main() async {
 
   runApp(
     EasyLocalization(
-      supportedLocales: const [Locale('en', 'US'), Locale('hi', 'IN')],
+      supportedLocales: const [Locale('en'), Locale('hi')],
       path: 'assets/translations',
-      fallbackLocale: const Locale('en', 'US'),
+      fallbackLocale: const Locale('en'),
       child: const ProArmyApp(),
     ),
   );

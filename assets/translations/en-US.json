@@ -1,0 +1,21 @@
+{
+  "app_title": "NCC · Pro X",
+  "dashboard": {
+    "field_assistant": "Field Assistant",
+    "gps": "GPS",
+    "mag": "MAG",
+    "lat": "LAT",
+    "lon": "LON",
+    "alt": "ALT",
+    "spd": "SPD",
+    "grid": "GRID",
+    "acc": "ACC",
+    "mode": "MODE",
+    "offline": "OFFLINE",
+    "command_modules": "Command Modules",
+    "sos": "SOS",
+    "torch": "Torch",
+    "compass": "Compass",
+    "system_status": "◆ SYSTEM NOMINAL ◆ OFFLINE-FIRST ◆ MODE: FIELD ◆"
+  }
+}
