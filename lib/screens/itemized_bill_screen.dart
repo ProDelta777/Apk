@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:share_plus/share_plus.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../models/bill_item.dart';
 
 class ItemizedBillScreen extends StatefulWidget {
@@ -18,6 +19,35 @@ class _ItemizedBillScreenState extends State<ItemizedBillScreen> {
   final _rateController = TextEditingController();
   final _quantityController = TextEditingController();
   final NumberFormat _currencyFormat = NumberFormat.currency(symbol: '₹', decimalDigits: 2);
+
+  late stt.SpeechToText _speech;
+  bool _isListening = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _speech = stt.SpeechToText();
+  }
+
+  void _listenItemName() async {
+    if (!_isListening) {
+      bool available = await _speech.initialize(
+        onStatus: (val) => debugPrint('onStatus: $val'),
+        onError: (val) => debugPrint('onError: $val'),
+      );
+      if (available) {
+        setState(() => _isListening = true);
+        _speech.listen(
+          onResult: (val) => setState(() {
+            _nameController.text = val.recognizedWords;
+          }),
+        );
+      }
+    } else {
+      setState(() => _isListening = false);
+      _speech.stop();
+    }
+  }
 
   double get _totalBill => _items.fold(0, (sum, item) => sum + item.total);
 
@@ -184,7 +214,14 @@ class _ItemizedBillScreenState extends State<ItemizedBillScreen> {
                   flex: 2,
                   child: TextField(
                     controller: _nameController,
-                    decoration: const InputDecoration(labelText: 'Item Name (e.g. Aloo)', border: OutlineInputBorder()),
+                    decoration: InputDecoration(
+                      labelText: 'Item Name',
+                      border: const OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        icon: Icon(_isListening ? Icons.mic : Icons.mic_none, color: _isListening ? Colors.red : Colors.blueAccent),
+                        onPressed: _listenItemName,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
