@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:math_expressions/math_expressions.dart';
 import 'package:intl/intl.dart';
-import '../models/bill_item.dart';
+import '../models/calculation_history_item.dart';
 
 class CalculatorScreen extends StatefulWidget {
   const CalculatorScreen({super.key});
@@ -13,7 +13,7 @@ class CalculatorScreen extends StatefulWidget {
 class _CalculatorScreenState extends State<CalculatorScreen> {
   String _input = '';
   String _result = '0';
-  final List<BillItem> _history = [];
+  final List<CalculationHistoryItem> _history = [];
   final ScrollController _scrollController = ScrollController();
   final NumberFormat _currencyFormat = NumberFormat.currency(locale: 'en_IN', symbol: '₹');
 
@@ -53,7 +53,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         double finalResult = eval * multiplier;
 
         setState(() {
-          _history.add(BillItem(
+          _history.add(CalculationHistoryItem(
             expression: '$_input ($label)',
             result: finalResult,
             timestamp: DateTime.now(),
@@ -79,7 +79,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       double eval = exp.evaluate(EvaluationType.REAL, cm);
 
       setState(() {
-        _history.add(BillItem(
+        _history.add(CalculationHistoryItem(
           expression: _input,
           result: eval,
           timestamp: DateTime.now(),
