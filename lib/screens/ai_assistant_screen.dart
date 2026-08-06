@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/bill_item.dart';
 import 'package:share_plus/share_plus.dart';
-import 'api_key_screen.dart';
 
 class AiAssistantScreen extends StatefulWidget {
   const AiAssistantScreen({super.key});
@@ -24,20 +23,13 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
   List<BillItem> _generatedItems = [];
   final NumberFormat _currencyFormat = NumberFormat.currency(symbol: '₹', decimalDigits: 2);
 
-  String? _apiKey;
+  // Retrieving the API key injected securely at compile-time
+  static const String _apiKey = String.fromEnvironment('GEMINI_API_KEY');
 
   @override
   void initState() {
     super.initState();
     _speech = stt.SpeechToText();
-    _loadApiKey();
-  }
-
-  Future<void> _loadApiKey() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _apiKey = prefs.getString('gemini_api_key');
-    });
   }
 
   void _listen() async {
@@ -77,9 +69,13 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
     });
 
     try {
+      if (_apiKey.isEmpty) {
+        throw Exception("API Key not found in build environment.");
+      }
+
       final model = GenerativeModel(
         model: 'gemini-1.5-flash',
-        apiKey: _apiKey!,
+        apiKey: _apiKey,
         systemInstruction: Content.system('''
 You are an expert billing assistant for an Indian shopkeeper. The user will speak a sentence containing items they sold, their quantities, and their rates.
 Extract the items, rates, and quantities.
@@ -182,16 +178,6 @@ For example, if input is "5 kg aloo 200 aur 2 kg karela 100 ke hisab se", return
 
   @override
   Widget build(BuildContext context) {
-    if (_apiKey == null) {
-      return ApiKeyScreen(
-        onKeySaved: (key) {
-          setState(() {
-            _apiKey = key;
-          });
-        },
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Smart AI Assistant'),
