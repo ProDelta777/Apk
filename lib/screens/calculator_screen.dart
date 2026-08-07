@@ -247,8 +247,9 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
           ),
 
           // Custom Keypad
-          Container(
-            padding: const EdgeInsets.all(16.0),
+          SafeArea(
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
@@ -322,7 +323,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                 ),
               ],
             ),
-          )
+          ))
         ],
       ),
     );

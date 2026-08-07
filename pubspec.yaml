@@ -38,8 +38,6 @@ dependencies:
   intl: ^0.20.3
   shared_preferences: ^2.5.5
   share_plus: ^13.3.0
-  speech_to_text: ^7.4.0
-  google_generative_ai: ^0.4.7
 
 dev_dependencies:
   flutter_test:

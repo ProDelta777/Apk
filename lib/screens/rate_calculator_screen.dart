@@ -168,36 +168,38 @@ class _RateCalculatorScreenState extends State<RateCalculatorScreen> {
               ),
             ),
             const SizedBox(height: 32),
-            Container(
-              padding: const EdgeInsets.all(24.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.green.withAlpha(50), width: 2),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.green.withAlpha(25),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  )
-                ],
-              ),
-              child: Column(
-                children: [
-                  const Text(
-                    'Total Price',
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _currencyFormat.format(_calculatedPrice),
-                    style: const TextStyle(
-                      fontSize: 48,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
+            SafeArea(
+              child: Container(
+                padding: const EdgeInsets.all(24.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.green.withAlpha(50), width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.green.withAlpha(25),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    )
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    const Text(
+                      'Total Price',
+                      style: TextStyle(fontSize: 18, color: Colors.grey),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Text(
+                      _currencyFormat.format(_calculatedPrice),
+                      style: const TextStyle(
+                        fontSize: 48,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

@@ -6,7 +6,7 @@ import 'cash_counter_screen.dart';
 import 'history_screen.dart';
 import 'profit_calculator_screen.dart';
 import 'khata_screen.dart';
-import 'ai_assistant_screen.dart';
+import 'discount_calculator_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -54,10 +54,10 @@ class DashboardScreen extends StatelessWidget {
                   children: [
                     _buildDashboardCard(
                       context,
-                      'AI Assistant',
-                      Icons.auto_awesome,
-                      Colors.deepPurpleAccent,
-                      const AiAssistantScreen(),
+                      'Discount Calc',
+                      Icons.local_offer,
+                      Colors.pinkAccent,
+                      const DiscountCalculatorScreen(),
                     ),
                     _buildDashboardCard(
                       context,

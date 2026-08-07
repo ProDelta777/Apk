@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:intl/intl.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class KhataScreen extends StatefulWidget {
   const KhataScreen({super.key});
@@ -17,34 +16,10 @@ class _KhataScreenState extends State<KhataScreen> {
   final _nameController = TextEditingController();
   final _amountController = TextEditingController();
 
-  late stt.SpeechToText _speech;
-  bool _isListening = false;
-
   @override
   void initState() {
     super.initState();
-    _speech = stt.SpeechToText();
     _loadKhata();
-  }
-
-  void _listenName() async {
-    if (!_isListening) {
-      bool available = await _speech.initialize(
-        onStatus: (val) => debugPrint('onStatus: $val'),
-        onError: (val) => debugPrint('onError: $val'),
-      );
-      if (available) {
-        setState(() => _isListening = true);
-        _speech.listen(
-          onResult: (val) => setState(() {
-            _nameController.text = val.recognizedWords;
-          }),
-        );
-      }
-    } else {
-      setState(() => _isListening = false);
-      _speech.stop();
-    }
   }
 
   Future<void> _loadKhata() async {
@@ -101,17 +76,7 @@ class _KhataScreenState extends State<KhataScreen> {
           children: [
             TextField(
               controller: _nameController,
-              decoration: InputDecoration(
-                labelText: 'Customer Name',
-                suffixIcon: IconButton(
-                  icon: Icon(_isListening ? Icons.mic : Icons.mic_none, color: _isListening ? Colors.red : Colors.blueAccent),
-                  onPressed: () {
-                    // Update the state of the dialog specifically
-                    (context as Element).markNeedsBuild();
-                    _listenName();
-                  },
-                ),
-              ),
+              decoration: const InputDecoration(labelText: 'Customer Name'),
             ),
             const SizedBox(height: 8),
             TextField(
@@ -182,11 +147,13 @@ class _KhataScreenState extends State<KhataScreen> {
         backgroundColor: Colors.redAccent,
         foregroundColor: Colors.white,
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _showAddDialog,
-        backgroundColor: Colors.redAccent,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('Add Entry', style: TextStyle(color: Colors.white)),
+      floatingActionButton: SafeArea(
+        child: FloatingActionButton.extended(
+          onPressed: _showAddDialog,
+          backgroundColor: Colors.redAccent,
+          icon: const Icon(Icons.add, color: Colors.white),
+          label: const Text('Add Entry', style: TextStyle(color: Colors.white)),
+        ),
       ),
       body: Column(
         children: [
