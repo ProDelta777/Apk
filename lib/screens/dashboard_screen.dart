@@ -8,8 +8,35 @@ import 'profit_calculator_screen.dart';
 import 'khata_screen.dart';
 import 'discount_calculator_screen.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
+
+    _animation = Tween<double>(begin: -5, end: 5).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,13 +55,32 @@ class DashboardScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Welcome to QuantaCalc',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.black87,
-                ),
+              AnimatedBuilder(
+                animation: _animation,
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(0, _animation.value),
+                    child: ShaderMask(
+                      shaderCallback: (bounds) => const LinearGradient(
+                        colors: [Colors.blueAccent, Colors.purpleAccent],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ).createShader(bounds),
+                      child: const Text(
+                        'QuantaCalc',
+                        style: TextStyle(
+                          fontSize: 42,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          letterSpacing: 1.5,
+                          shadows: [
+                            Shadow(color: Colors.black26, blurRadius: 10, offset: Offset(2, 4)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 8),
               const Text(

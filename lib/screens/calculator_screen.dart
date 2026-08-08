@@ -180,16 +180,19 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                       itemBuilder: (context, index) {
                         final item = _history[index];
                         return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Expanded(
                                 child: Text(
                                   item.formattedExpression,
                                   style: const TextStyle(fontSize: 16, color: Colors.black87),
+                                  softWrap: true,
                                 ),
                               ),
+                              const SizedBox(width: 16),
                               Text(
                                 _currencyFormat.format(item.result),
                                 style: const TextStyle(
@@ -233,14 +236,25 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  _input,
-                  style: const TextStyle(fontSize: 24, color: Colors.black54),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  reverse: true,
+                  child: Text(
+                    _input,
+                    style: const TextStyle(fontSize: 24, color: Colors.black54),
+                  ),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  _result,
-                  style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+                SizedBox(
+                  height: 60,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      _result,
+                      style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+                    ),
+                  ),
                 ),
               ],
             ),
