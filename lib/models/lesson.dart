@@ -10,10 +10,12 @@ class Lesson {
   final String? keyPoints;
   final String? miniPractice;
   final String? language;
+  final int levelNumber; // Determines unlocking logic 1 to 100
 
   Lesson({
     required this.id,
     required this.title,
+    required this.levelNumber,
     required this.explanation,
     this.concept,
     this.syntax,

@@ -19,10 +19,21 @@ class Course {
   int get totalLessons {
     return levels.fold(0, (sum, level) => sum + level.lessons.length);
   }
+
+  Lesson? getLessonByLevel(int levelNumber) {
+    for (var section in levels) {
+      for (var lesson in section.lessons) {
+        if (lesson.levelNumber == levelNumber) {
+          return lesson;
+        }
+      }
+    }
+    return null;
+  }
 }
 
 class CourseLevel {
-  final String title; // "Beginner", "Intermediate", "Advanced"
+  final String title; // "FOUNDATION (Levels 1-20)", etc.
   final List<Lesson> lessons;
   final List<QuizQuestion> quizzes;
 

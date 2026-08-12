@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../data/course_data.dart';
 import '../models/quiz_question.dart';
 import 'quiz_screen.dart';
+import 'quiz_setup_screen.dart';
 import 'compiler_screen.dart';
 
 class PracticeScreen extends StatelessWidget {
@@ -17,11 +18,55 @@ class PracticeScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           _buildScratchpadCard(context),
+          const SizedBox(height: 16),
+          _buildQuizSetupCard(context),
           const SizedBox(height: 32),
           Text('Daily Challenges', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 16),
           ...CourseData.dailyChallenges.map((challenge) => _buildChallengeCard(context, challenge)),
         ],
+      ),
+    );
+  }
+
+  Widget _buildQuizSetupCard(BuildContext context) {
+    return Card(
+      elevation: 0,
+      color: Colors.blue.withOpacity(0.1),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: Colors.blue),
+      ),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const QuizSetupScreen(),
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            children: [
+              const Icon(Icons.quiz, size: 40, color: Colors.blue),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Custom Quiz', style: Theme.of(context).textTheme.titleLarge),
+                    const SizedBox(height: 4),
+                    Text('Test yourself with 5, 10, or 20 questions.', style: Theme.of(context).textTheme.bodyMedium),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right, color: Colors.blue),
+            ],
+          ),
+        ),
       ),
     );
   }

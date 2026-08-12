@@ -39,18 +39,11 @@ class _CompilerScreenState extends State<CompilerScreen> {
       _output = 'Compiling...';
     });
 
-    // Simulate compilation delay for offline environment
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(const Duration(milliseconds: 500));
 
     setState(() {
       _isRunning = false;
-      // Since actual offline compilation of 10 languages is impossible on a client device without massive binaries,
-      // we simulate success. If they haven't modified the core print structure, we show expected output.
-      if (widget.expectedOutput != null && _codeController.text.isNotEmpty) {
-         _output = 'SUCCESS:\n${widget.expectedOutput}';
-      } else {
-         _output = 'SUCCESS:\nCode executed successfully (Simulated output for ${widget.language}).';
-      }
+      _output = 'Offline execution for this language is not currently supported on this device.\n\n(Cannot securely bundle offline compilers/runtimes for all 10 languages on a mobile client without exceeding storage limitations.)';
     });
   }
 
