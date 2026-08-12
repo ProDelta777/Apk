@@ -100,10 +100,9 @@ class ProgressProvider extends ChangeNotifier {
 
   int getCourseCompletedCount(String courseId) {
       int completed = 0;
-      String prefixShort = '${courseId.substring(0, 2)}_';
-      String prefixFull = '${courseId}_';
+      String prefixFull = '${courseId}_lvl';
       for (String lessonId in _completedLessons) {
-       if (lessonId.startsWith(prefixShort) || lessonId.startsWith(prefixFull)) {
+       if (lessonId.startsWith(prefixFull)) {
           completed++;
        }
     }
