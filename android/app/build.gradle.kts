@@ -32,12 +32,9 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("debug")
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+            // Disable minification which strips Flutter JNI symbols incorrectly on Release
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
     }
 }
