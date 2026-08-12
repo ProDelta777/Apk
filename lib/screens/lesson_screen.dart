@@ -7,6 +7,7 @@ import 'package:flutter_highlighter/themes/darcula.dart';
 import '../models/lesson.dart';
 import '../providers/progress_provider.dart';
 import '../providers/bookmark_provider.dart';
+import 'compiler_screen.dart';
 
 class LessonScreen extends StatelessWidget {
   final Lesson lesson;
@@ -79,6 +80,28 @@ class LessonScreen extends StatelessWidget {
              if (lesson.commonMistakes != null) ...[
               const SizedBox(height: 24),
               _buildSection(context, 'Common Mistakes', lesson.commonMistakes!, icon: Icons.warning, color: Colors.orange),
+            ],
+            if (lesson.codeExample != null) ...[
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CompilerScreen(
+                          initialCode: lesson.codeExample!,
+                          language: lesson.language ?? 'python',
+                          expectedOutput: lesson.expectedOutput,
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.code),
+                  label: const Text('Practice in Editor'),
+                ),
+              ),
             ],
             const SizedBox(height: 48),
             SizedBox(
