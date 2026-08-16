@@ -1,158 +1,244 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/progress_provider.dart';
-import '../data/course_data.dart';
-import 'quiz_screen.dart';
-import 'bookmarks_screen.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'compass_screen.dart';
+import 'location_screen.dart';
+import 'coordinates_screen.dart';
+import 'emergency_screen.dart';
+import 'flashlight_screen.dart';
+import 'level_screen.dart';
+import 'device_info_screen.dart';
+import 'games_screen.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'PRECODE',
-                style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 28),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Learn. Code. Build.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 32),
-              _buildProgressOverview(context),
-              const SizedBox(height: 32),
-              _buildDailyChallenge(context),
-              const SizedBox(height: 32),
-              _buildBookmarksLink(context),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProgressOverview(BuildContext context) {
-    return Consumer<ProgressProvider>(
-      builder: (context, progress, child) {
-        return Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('My Progress', style: Theme.of(context).textTheme.titleLarge),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _StatItem(label: 'XP', value: '${progress.xp}'),
-                  _StatItem(label: 'Level', value: '${progress.level}'),
-                  _StatItem(label: 'Streak', value: '${progress.streak} days'),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'OFFGRID',
+                        style: theme.textTheme.headlineLarge?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.5,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Your essential tools. Anywhere.',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.settings),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                      );
+                    },
+                  ),
                 ],
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.green.withOpacity(0.1) : Colors.green.shade50,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isDark ? Colors.green.withOpacity(0.3) : Colors.green.shade200,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: Colors.green,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Offline Ready',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              Expanded(
+                child: MasonryGridView.count(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                  itemCount: _tools.length,
+                  itemBuilder: (context, index) {
+                    final tool = _tools[index];
+                    return _ToolCard(
+                      tool: tool,
+                      onTap: () {
+                        if (tool.screen != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => tool.screen!),
+                          );
+                        }
+                      },
+                    );
+                  },
+                ),
               ),
             ],
           ),
-        );
-      },
-    );
-  }
-
-  Widget _buildDailyChallenge(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Theme.of(context).colorScheme.secondary),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.star, color: Theme.of(context).colorScheme.secondary, size: 40),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Daily Challenge', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 18)),
-                const SizedBox(height: 4),
-                Text('Test your skills and earn extra XP!', style: Theme.of(context).textTheme.bodyMedium),
-              ],
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-               Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => QuizScreen(question: CourseData.dailyChallenges.first)),
-                );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.secondary,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Play'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBookmarksLink(BuildContext context) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.amber.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
         ),
-        child: const Icon(Icons.bookmark, color: Colors.amber),
       ),
-      title: const Text('My Bookmarks', style: TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: const Text('Access your saved lessons quickly.'),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const BookmarksScreen()),
-        );
-      },
     );
   }
 }
 
-class _StatItem extends StatelessWidget {
-  final String label;
-  final String value;
+class _Tool {
+  final String name;
+  final String description;
+  final IconData icon;
+  final Widget? screen;
 
-  const _StatItem({required this.label, required this.value});
+  const _Tool({
+    required this.name,
+    required this.description,
+    required this.icon,
+    this.screen,
+  });
+}
+
+final _tools = [
+  const _Tool(
+    name: 'Compass',
+    description: '16-point tactical',
+    icon: Icons.explore,
+    screen: CompassScreen(),
+  ),
+  const _Tool(
+    name: 'My Location',
+    description: 'Detailed GPS data',
+    icon: Icons.my_location,
+    screen: LocationScreen(),
+  ),
+  const _Tool(
+    name: 'Coordinates',
+    description: 'Quick GPS share',
+    icon: Icons.pin_drop,
+    screen: CoordinatesScreen(),
+  ),
+  const _Tool(
+    name: 'Emergency',
+    description: 'Critical info',
+    icon: Icons.warning,
+    screen: EmergencyScreen(),
+  ),
+  const _Tool(
+    name: 'Flashlight',
+    description: 'Strobe & SOS',
+    icon: Icons.flashlight_on,
+    screen: FlashlightScreen(),
+  ),
+  const _Tool(
+    name: 'Level',
+    description: 'Digital spirit level',
+    icon: Icons.horizontal_rule,
+    screen: LevelScreen(),
+  ),
+  const _Tool(
+    name: 'Device Info',
+    description: 'Hardware stats',
+    icon: Icons.info,
+    screen: DeviceInfoScreen(),
+  ),
+  const _Tool(
+    name: 'Mini Games',
+    description: 'Offline fun',
+    icon: Icons.games,
+    screen: GamesScreen(),
+  ),
+];
+
+class _ToolCard extends StatelessWidget {
+  final _Tool tool;
+  final VoidCallback onTap;
+
+  const _ToolCard({required this.tool, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF00FF7F))),
-        const SizedBox(height: 4),
-        Text(label, style: Theme.of(context).textTheme.bodyMedium),
-      ],
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Material(
+      color: theme.cardColor,
+      borderRadius: BorderRadius.circular(24),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: BorderSide(
+          color: isDark ? Colors.white12 : Colors.black12,
+        ),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(24),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                tool.icon,
+                size: 36,
+                color: theme.colorScheme.primary,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                tool.name,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                tool.description,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
