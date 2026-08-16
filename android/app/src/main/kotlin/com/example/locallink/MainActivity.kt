@@ -1,4 +1,4 @@
-package com.offgrid.utility
+package com.example.locallink
 
 import io.flutter.embedding.android.FlutterActivity
 
