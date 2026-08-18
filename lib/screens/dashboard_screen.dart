@@ -7,6 +7,7 @@ import 'history_screen.dart';
 import 'profit_calculator_screen.dart';
 import 'khata_screen.dart';
 import 'discount_calculator_screen.dart';
+import '../widgets/math_mesh_background.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -41,7 +42,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text('QuantaCalc Dashboard', style: TextStyle(fontWeight: FontWeight.bold)),
         elevation: 0,
@@ -49,39 +50,41 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
         foregroundColor: Colors.white,
         centerTitle: true,
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AnimatedBuilder(
-                animation: _animation,
-                builder: (context, child) {
-                  return Transform.translate(
-                    offset: Offset(0, _animation.value),
-                    child: ShaderMask(
-                      shaderCallback: (bounds) => const LinearGradient(
-                        colors: [Colors.blueAccent, Colors.purpleAccent],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ).createShader(bounds),
-                      child: const Text(
-                        'QuantaCalc',
-                        style: TextStyle(
-                          fontSize: 42,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                          letterSpacing: 1.5,
-                          shadows: [
-                            Shadow(color: Colors.black26, blurRadius: 10, offset: Offset(2, 4)),
-                          ],
+      body: MathMeshBackground(
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AnimatedBuilder(
+                  animation: _animation,
+                  builder: (context, child) {
+                    return Transform.translate(
+                      offset: Offset(0, _animation.value),
+                      child: ShaderMask(
+                        shaderCallback: (bounds) => LinearGradient(
+                          colors: [Colors.blueAccent.shade700, Colors.purpleAccent.shade400],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ).createShader(bounds),
+                        child: const Text(
+                          'QuantaCalc',
+                          style: TextStyle(
+                            fontSize: 48,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                            letterSpacing: 2.0,
+                            shadows: [
+                              Shadow(color: Colors.black38, blurRadius: 15, offset: Offset(3, 6)),
+                              Shadow(color: Colors.blueAccent, blurRadius: 30, offset: Offset(0, 0)),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
-              ),
+                    );
+                  },
+                ),
               const SizedBox(height: 8),
               const Text(
                 'Your all-in-one smart shop assistant.',
@@ -160,6 +163,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
             ],
           ),
         ),
+      ),
       ),
     );
   }
