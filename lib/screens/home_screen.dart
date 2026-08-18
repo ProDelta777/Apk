@@ -9,6 +9,7 @@ import 'level_screen.dart';
 import 'device_info_screen.dart';
 import 'games_screen.dart';
 import 'settings_screen.dart';
+import 'chat_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -144,6 +145,18 @@ final _tools = [
     screen: CompassScreen(),
   ),
   const _Tool(
+    name: 'Comms',
+    description: 'Offline Walkie',
+    icon: Icons.bluetooth_connected,
+    screen: ChatScreen(),
+  ),
+  const _Tool(
+    name: 'Flashlight',
+    description: 'Strobe & SOS',
+    icon: Icons.flashlight_on,
+    screen: FlashlightScreen(),
+  ),
+  const _Tool(
     name: 'My Location',
     description: 'Detailed GPS data',
     icon: Icons.my_location,
@@ -160,12 +173,6 @@ final _tools = [
     description: 'Critical info',
     icon: Icons.warning,
     screen: EmergencyScreen(),
-  ),
-  const _Tool(
-    name: 'Flashlight',
-    description: 'Strobe & SOS',
-    icon: Icons.flashlight_on,
-    screen: FlashlightScreen(),
   ),
   const _Tool(
     name: 'Level',
