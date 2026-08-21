@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../widgets/math_mesh_background.dart';
 
 class RateCalculatorScreen extends StatefulWidget {
   const RateCalculatorScreen({super.key});
@@ -51,158 +52,154 @@ class _RateCalculatorScreenState extends State<RateCalculatorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text('Bhaav (Rate) Calculator'),
-        backgroundColor: Colors.green,
-        foregroundColor: Colors.white,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Price (Rate)',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Text('₹ ', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                        Expanded(
-                          child: TextField(
-                            controller: _priceController,
-                            keyboardType: TextInputType.number,
-                            decoration: const InputDecoration(
-                              hintText: '0.00',
-                              border: InputBorder.none,
-                            ),
-                            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                            onChanged: (_) => _calculate(),
-                          ),
-                        ),
-                        const Text(' per ', style: TextStyle(fontSize: 18, color: Colors.grey)),
-                        DropdownButton<String>(
-                          value: _selectedBaseUnit,
-                          underline: const SizedBox(),
-                          style: const TextStyle(fontSize: 18, color: Colors.green, fontWeight: FontWeight.bold),
-                          items: _baseUnits.map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              _selectedBaseUnit = newValue!;
-                              _calculate();
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            const Icon(Icons.arrow_downward, color: Colors.grey, size: 32),
-            const SizedBox(height: 24),
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'I need...',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _weightController,
-                            keyboardType: TextInputType.number,
-                            decoration: const InputDecoration(
-                              hintText: 'Quantity',
-                              border: InputBorder.none,
-                            ),
-                            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                            onChanged: (_) => _calculate(),
-                          ),
-                        ),
-                        DropdownButton<String>(
-                          value: _selectedTargetUnit,
-                          underline: const SizedBox(),
-                          style: const TextStyle(fontSize: 18, color: Colors.blue, fontWeight: FontWeight.bold),
-                          items: _targetUnits.map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              _selectedTargetUnit = newValue!;
-                              _calculate();
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 32),
-            SafeArea(
-              child: Container(
-                padding: const EdgeInsets.all(24.0),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.green.withAlpha(50), width: 2),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.green.withAlpha(25),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
-                    )
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    const Text(
-                      'Total Price',
-                      style: TextStyle(fontSize: 18, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      _currencyFormat.format(_calculatedPrice),
-                      style: const TextStyle(
-                        fontSize: 48,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
+      body: MathMeshBackground(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Price (Rate)',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.cyanAccent.withOpacity(0.8), letterSpacing: 1.2),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          const Text('₹ ', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)),
+                          Expanded(
+                            child: TextField(
+                              controller: _priceController,
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                hintText: '0.00',
+                                border: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                fillColor: Colors.transparent,
+                              ),
+                              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                              onChanged: (_) => _calculate(),
+                            ),
+                          ),
+                          const Text(' per ', style: TextStyle(fontSize: 18, color: Colors.white54)),
+                          DropdownButton<String>(
+                            value: _selectedBaseUnit,
+                            underline: const SizedBox(),
+                            dropdownColor: const Color(0xFF1E293B),
+                            style: const TextStyle(fontSize: 20, color: Colors.cyanAccent, fontWeight: FontWeight.bold),
+                            items: _baseUnits.map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _selectedBaseUnit = newValue!;
+                                _calculate();
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 24),
+              const Icon(Icons.arrow_downward, color: Colors.white24, size: 32),
+              const SizedBox(height: 24),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'I need...',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.purpleAccent.withOpacity(0.8), letterSpacing: 1.2),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _weightController,
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                hintText: 'Quantity',
+                                border: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                fillColor: Colors.transparent,
+                              ),
+                              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                              onChanged: (_) => _calculate(),
+                            ),
+                          ),
+                          DropdownButton<String>(
+                            value: _selectedTargetUnit,
+                            underline: const SizedBox(),
+                            dropdownColor: const Color(0xFF1E293B),
+                            style: const TextStyle(fontSize: 20, color: Colors.purpleAccent, fontWeight: FontWeight.bold),
+                            items: _targetUnits.map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _selectedTargetUnit = newValue!;
+                                _calculate();
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
+              SafeArea(
+                child: Container(
+                  padding: const EdgeInsets.all(24.0),
+                  decoration: BoxDecoration(
+                    color: Colors.cyanAccent.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: Colors.cyanAccent.withOpacity(0.2), width: 1),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Total Price',
+                        style: TextStyle(fontSize: 16, color: Colors.cyanAccent.withOpacity(0.8), letterSpacing: 1.2),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        _currencyFormat.format(_calculatedPrice),
+                        style: const TextStyle(
+                          fontSize: 48,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          shadows: [Shadow(color: Colors.cyanAccent, blurRadius: 10)],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

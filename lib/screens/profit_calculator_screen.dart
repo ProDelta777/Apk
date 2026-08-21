@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../widgets/math_mesh_background.dart';
+
 class ProfitCalculatorScreen extends StatefulWidget {
   const ProfitCalculatorScreen({super.key});
 
@@ -45,77 +47,87 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text('Profit Calculator'),
-        backgroundColor: Colors.teal,
-        foregroundColor: Colors.white,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: _costController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: 'Kharid Rate (Cost Price)',
-                prefixText: '₹ ',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      body: MathMeshBackground(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                controller: _costController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Kharid Rate (Cost Price)',
+                  prefixText: '₹ ',
+                ),
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                onChanged: (_) => _calculateProfit(),
               ),
-              onChanged: (_) => _calculateProfit(),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _sellController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: 'Bikri Rate (Sell Price)',
-                prefixText: '₹ ',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _sellController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Bikri Rate (Sell Price)',
+                  prefixText: '₹ ',
+                ),
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                onChanged: (_) => _calculateProfit(),
               ),
-              onChanged: (_) => _calculateProfit(),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _quantityController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: 'Quantity (Items Sold)',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _quantityController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Quantity (Items Sold)',
+                ),
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                onChanged: (_) => _calculateProfit(),
               ),
-              onChanged: (_) => _calculateProfit(),
-            ),
-            const SizedBox(height: 32),
-            if (_costController.text.isNotEmpty && _sellController.text.isNotEmpty) ...[
-              _buildResultCard(),
+              const SizedBox(height: 32),
+              if (_costController.text.isNotEmpty && _sellController.text.isNotEmpty) ...[
+                _buildResultCard(),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildResultCard() {
-    Color statusColor = _isLoss ? Colors.red : Colors.green;
+    Color statusColor = _isLoss ? Colors.redAccent : Colors.greenAccent;
     String statusText = _isLoss ? 'Nuksan (Loss)' : 'Munafa (Profit)';
 
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: statusColor.withOpacity(0.05),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: BorderSide(color: statusColor.withOpacity(0.3)),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           children: [
             Text(
               statusText,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: statusColor),
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w900,
+                color: statusColor,
+                shadows: [Shadow(color: statusColor.withOpacity(0.5), blurRadius: 10)],
+                letterSpacing: 1.5,
+              ),
             ),
-            const Divider(height: 32),
+            const Divider(height: 32, color: Colors.white12),
             _buildResultRow('Per Item Amount', _currencyFormat.format(_profitAmount.abs()), statusColor),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             _buildResultRow('Margin (%)', '${_profitMargin.abs().toStringAsFixed(2)}%', statusColor),
-            const Divider(height: 32),
+            const Divider(height: 32, color: Colors.white12),
             _buildResultRow('Total (Qty x Amount)', _currencyFormat.format(_totalProfit.abs()), statusColor, isBold: true),
           ],
         ),
@@ -131,14 +143,14 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
           label,
           style: TextStyle(
             fontSize: isBold ? 18 : 16,
-            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            color: Colors.black87,
+            fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
+            color: Colors.white70,
           ),
         ),
         Text(
           value,
           style: TextStyle(
-            fontSize: isBold ? 20 : 18,
+            fontSize: isBold ? 24 : 18,
             fontWeight: FontWeight.bold,
             color: color,
           ),

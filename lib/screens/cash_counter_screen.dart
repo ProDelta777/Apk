@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../widgets/math_mesh_background.dart';
 
 class CashCounterScreen extends StatefulWidget {
   const CashCounterScreen({super.key});
@@ -41,10 +42,9 @@ class _CashCounterScreenState extends State<CashCounterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text('Cash Counter (Galla)'),
-        backgroundColor: Colors.green,
-        foregroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.clear_all),
@@ -53,82 +53,91 @@ class _CashCounterScreenState extends State<CashCounterScreen> {
           )
         ],
       ),
-      body: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.1),
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
+      body: MathMeshBackground(
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E293B).withOpacity(0.8),
+                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
+                border: const Border(bottom: BorderSide(color: Colors.white12)),
+              ),
+              child: Column(
+                children: [
+                  const Text('Total Cash', style: TextStyle(fontSize: 16, color: Colors.white54, letterSpacing: 1.2)),
+                  const SizedBox(height: 8),
+                  Text(_currencyFormat.format(_totalCash),
+                      style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w900, color: Colors.greenAccent)),
+                ],
+              ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text('Total Cash: ', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                Text(_currencyFormat.format(_totalCash),
-                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.green)),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _denominations.length,
-              itemBuilder: (context, index) {
-                final denom = _denominations[index];
-                final count = int.tryParse(_controllers[denom]?.text ?? '0') ?? 0;
-                final rowTotal = denom * count;
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: _denominations.length,
+                itemBuilder: (context, index) {
+                  final denom = _denominations[index];
+                  final count = int.tryParse(_controllers[denom]?.text ?? '0') ?? 0;
+                  final rowTotal = denom * count;
 
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 80,
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.green.shade100,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          '₹$denom',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      const Text('x', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: TextField(
-                          controller: _controllers[denom],
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: 'Notes',
-                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 80,
+                          height: 56,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: Colors.greenAccent.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.greenAccent.withOpacity(0.3)),
                           ),
-                          onChanged: (_) => setState(() {}),
+                          child: Text(
+                            '₹$denom',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.greenAccent),
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      const Text('=', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      const SizedBox(width: 16),
-                      SizedBox(
-                        width: 100,
-                        child: Text(
-                          _currencyFormat.format(rowTotal),
-                          textAlign: TextAlign.right,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        const SizedBox(width: 16),
+                        const Text('x', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w300, color: Colors.white54)),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: SizedBox(
+                            height: 56,
+                            child: TextField(
+                              controller: _controllers[denom],
+                              keyboardType: TextInputType.number,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                              decoration: InputDecoration(
+                                hintText: '0',
+                                contentPadding: EdgeInsets.zero,
+                                fillColor: const Color(0xFF1E293B).withOpacity(0.6),
+                              ),
+                              onChanged: (_) => setState(() {}),
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              },
+                        const SizedBox(width: 16),
+                        const Text('=', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w300, color: Colors.white54)),
+                        const SizedBox(width: 16),
+                        Container(
+                          width: 100,
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            _currencyFormat.format(rowTotal),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

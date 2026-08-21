@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import '../widgets/math_mesh_background.dart';
 
 class KhataScreen extends StatefulWidget {
   const KhataScreen({super.key});
@@ -142,81 +143,116 @@ class _KhataScreenState extends State<KhataScreen> {
     final sortedKeys = _khataData.keys.toList()..sort();
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text('Udhar Khata'),
-        backgroundColor: Colors.redAccent,
-        foregroundColor: Colors.white,
       ),
       floatingActionButton: SafeArea(
         child: FloatingActionButton.extended(
           onPressed: _showAddDialog,
-          backgroundColor: Colors.redAccent,
-          icon: const Icon(Icons.add, color: Colors.white),
-          label: const Text('Add Entry', style: TextStyle(color: Colors.white)),
+          backgroundColor: Colors.cyanAccent,
+          icon: const Icon(Icons.add, color: Color(0xFF0F172A)),
+          label: const Text('Add Entry', style: TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold)),
         ),
       ),
-      body: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            color: Colors.redAccent.withOpacity(0.1),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Column(
-                  children: [
-                    const Text('Total Udhar', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-                    Text(_currencyFormat.format(_totalMarketDue), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red)),
-                  ],
-                ),
-                Column(
-                  children: [
-                    const Text('Advance', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
-                    Text(_currencyFormat.format(_totalAdvance), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green)),
-                  ],
-                ),
-              ],
+      body: MathMeshBackground(
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              margin: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1E293B).withOpacity(0.8),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: Colors.white12),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Column(
+                    children: [
+                      Text('Total Udhar', style: TextStyle(color: Colors.redAccent.shade100, fontWeight: FontWeight.w600, letterSpacing: 1.2)),
+                      const SizedBox(height: 8),
+                      Text(_currencyFormat.format(_totalMarketDue), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.redAccent)),
+                    ],
+                  ),
+                  Container(width: 1, height: 40, color: Colors.white12),
+                  Column(
+                    children: [
+                      Text('Advance', style: TextStyle(color: Colors.greenAccent.shade100, fontWeight: FontWeight.w600, letterSpacing: 1.2)),
+                      const SizedBox(height: 8),
+                      Text(_currencyFormat.format(_totalAdvance), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.greenAccent)),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: _khataData.isEmpty
-                ? const Center(child: Text('No udhar records.'))
-                : ListView.builder(
-                    itemCount: sortedKeys.length,
-                    itemBuilder: (context, index) {
-                      final name = sortedKeys[index];
-                      final amount = _khataData[name]!;
-                      final isAdvance = amount < 0;
+            Expanded(
+              child: _khataData.isEmpty
+                  ? const Center(child: Text('No udhar records.', style: TextStyle(color: Colors.white54, fontSize: 18)))
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: sortedKeys.length,
+                      itemBuilder: (context, index) {
+                        final name = sortedKeys[index];
+                        final amount = _khataData[name]!;
+                        final isAdvance = amount < 0;
 
-                      return ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: isAdvance ? Colors.green.shade100 : Colors.red.shade100,
-                          child: Text(name[0].toUpperCase(), style: TextStyle(color: isAdvance ? Colors.green : Colors.red)),
-                        ),
-                        title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                        subtitle: Text(isAdvance ? 'Advance' : 'To Receive'),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              _currencyFormat.format(amount.abs()),
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: isAdvance ? Colors.green : Colors.red,
+                        return Card(
+                          color: const Color(0xFF1E293B).withOpacity(0.6),
+                          elevation: 0,
+                          margin: const EdgeInsets.only(bottom: 8),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: const BorderSide(color: Colors.white12),
+                          ),
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            leading: Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: isAdvance ? Colors.greenAccent.withOpacity(0.2) : Colors.redAccent.withOpacity(0.2),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  name[0].toUpperCase(),
+                                  style: TextStyle(
+                                    color: isAdvance ? Colors.greenAccent : Colors.redAccent,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                  ),
+                                ),
                               ),
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.check_circle_outline, color: Colors.grey),
-                              onPressed: () => _showClearConfirmDialog(name),
-                            )
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-          ),
-        ],
+                            title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
+                            subtitle: Text(isAdvance ? 'Advance' : 'To Receive', style: TextStyle(color: Colors.white54)),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  _currencyFormat.format(amount.abs()),
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w900,
+                                    color: isAdvance ? Colors.greenAccent : Colors.redAccent,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                IconButton(
+                                  icon: const Icon(Icons.check_circle_outline, color: Colors.white38),
+                                  onPressed: () => _showClearConfirmDialog(name),
+                                )
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }

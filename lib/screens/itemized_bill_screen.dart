@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:share_plus/share_plus.dart';
 import '../models/bill_item.dart';
+import '../widgets/math_mesh_background.dart';
 
 class ItemizedBillScreen extends StatefulWidget {
   const ItemizedBillScreen({super.key});
@@ -159,6 +160,7 @@ class _ItemizedBillScreenState extends State<ItemizedBillScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text('Itemized Bill'),
         actions: [
@@ -174,102 +176,125 @@ class _ItemizedBillScreenState extends State<ItemizedBillScreen> {
           )
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: TextField(
-                    controller: _nameController,
-                    decoration: const InputDecoration(labelText: 'Item Name (e.g. Aloo)', border: OutlineInputBorder()),
+      body: MathMeshBackground(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: TextField(
+                      controller: _nameController,
+                      decoration: const InputDecoration(labelText: 'Item Name'),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _rateController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Rate', border: OutlineInputBorder()),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      controller: _rateController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(labelText: 'Rate'),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _quantityController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Qty', border: OutlineInputBorder()),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      controller: _quantityController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(labelText: 'Qty'),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: _addItem,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  child: const Icon(Icons.add),
-                )
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _items.length,
-              itemBuilder: (context, index) {
-                final item = _items[index];
-                return ListTile(
-                  title: Text('${item.name} (${item.quantity} x ₹${item.rate})'),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(_currencyFormat.format(item.total),
-                          style: const TextStyle(fontWeight: FontWeight.bold)),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => _removeItem(index),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-          SafeArea(
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor.withOpacity(0.1),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Total Bill:', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                    Text(_currencyFormat.format(_totalBill),
-                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.blueAccent)),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: _items.isEmpty ? null : _showChangeCalculator,
-                    icon: const Icon(Icons.calculate),
-                    label: const Text('Calculate Change', style: TextStyle(fontSize: 18)),
-                    style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(16)),
-                  ),
-                )
+                  const SizedBox(width: 8),
+                  Container(
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: Colors.cyanAccent,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: IconButton(
+                      onPressed: _addItem,
+                      icon: const Icon(Icons.add, color: Color(0xFF0F172A)),
+                    ),
+                  )
                 ],
               ),
             ),
-          )
-        ],
+            Expanded(
+              child: ListView.builder(
+                itemCount: _items.length,
+                itemBuilder: (context, index) {
+                  final item = _items[index];
+                  return Card(
+                    color: const Color(0xFF1E293B).withOpacity(0.6),
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: const BorderSide(color: Colors.white12),
+                    ),
+                    child: ListTile(
+                      title: Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                      subtitle: Text('${item.quantity} x ₹${item.rate}', style: const TextStyle(color: Colors.white54)),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(_currencyFormat.format(item.total),
+                              style: const TextStyle(fontWeight: FontWeight.w900, color: Colors.cyanAccent, fontSize: 16)),
+                          IconButton(
+                            icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                            onPressed: () => _removeItem(index),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            SafeArea(
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E293B).withOpacity(0.9),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+                  border: Border(top: BorderSide(color: Colors.white.withOpacity(0.05))),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 20, offset: const Offset(0, -5))
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Total Bill:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white54)),
+                        Text(_currencyFormat.format(_totalBill),
+                            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Colors.cyanAccent)),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton.icon(
+                        onPressed: _items.isEmpty ? null : _showChangeCalculator,
+                        icon: const Icon(Icons.calculate, color: Color(0xFF0F172A)),
+                        label: const Text('Calculate Change', style: TextStyle(fontSize: 18, color: Color(0xFF0F172A), fontWeight: FontWeight.bold)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.cyanAccent,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

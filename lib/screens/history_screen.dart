@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:share_plus/share_plus.dart';
 import '../models/bill_item.dart';
+import '../widgets/math_mesh_background.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -106,6 +107,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text('Bill History'),
         actions: [
@@ -115,8 +117,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: const Text('Clear History?'),
-                  content: const Text('Are you sure you want to delete all saved bills?'),
+                  backgroundColor: const Color(0xFF1E293B),
+                  title: const Text('Clear History?', style: TextStyle(color: Colors.white)),
+                  content: const Text('Are you sure you want to delete all saved bills?', style: TextStyle(color: Colors.white70)),
                   actions: [
                     TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
                     TextButton(
@@ -124,7 +127,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         _clearHistory();
                         Navigator.pop(context);
                       },
-                      child: const Text('Clear', style: TextStyle(color: Colors.red)),
+                      child: const Text('Clear', style: TextStyle(color: Colors.redAccent)),
                     ),
                   ],
                 ),
@@ -134,30 +137,46 @@ class _HistoryScreenState extends State<HistoryScreen> {
           )
         ],
       ),
-      body: _history.isEmpty
-          ? const Center(child: Text('No history available.'))
-          : ListView.builder(
-              itemCount: _history.length,
-              itemBuilder: (context, index) {
-                final bill = _history[index];
-                final date = DateTime.parse(bill['date']);
-                final total = bill['total'];
-                final itemCount = (bill['items'] as List).length;
+      body: MathMeshBackground(
+        child: _history.isEmpty
+            ? const Center(child: Text('No history available.', style: TextStyle(color: Colors.white54, fontSize: 18)))
+            : ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                itemCount: _history.length,
+                itemBuilder: (context, index) {
+                  final bill = _history[index];
+                  final date = DateTime.parse(bill['date']);
+                  final total = bill['total'];
+                  final itemCount = (bill['items'] as List).length;
 
-                return Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: ListTile(
-                    title: Text(_currencyFormat.format(total), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                    subtitle: Text('${_dateFormat.format(date)} • $itemCount items'),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.share, color: Colors.blueAccent),
-                      onPressed: () => _shareSavedBill(bill),
+                  return Card(
+                    color: const Color(0xFF1E293B).withOpacity(0.6),
+                    margin: const EdgeInsets.only(bottom: 12),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: const BorderSide(color: Colors.white12),
                     ),
-                    onTap: () => _showBillDetails(bill),
-                  ),
-                );
-              },
-            ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      title: Text(_currencyFormat.format(total), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 22, color: Colors.cyanAccent)),
+                      subtitle: Text('${_dateFormat.format(date)} • $itemCount items', style: TextStyle(color: Colors.white70)),
+                      trailing: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.05),
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.share, color: Colors.purpleAccent),
+                          onPressed: () => _shareSavedBill(bill),
+                        ),
+                      ),
+                      onTap: () => _showBillDetails(bill),
+                    ),
+                  );
+                },
+              ),
+      ),
     );
   }
 }

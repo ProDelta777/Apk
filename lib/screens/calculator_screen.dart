@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:math_expressions/math_expressions.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
 import '../models/calculation_history_item.dart';
+import '../widgets/math_mesh_background.dart';
 
 class CalculatorScreen extends StatefulWidget {
   const CalculatorScreen({super.key});
@@ -10,12 +12,57 @@ class CalculatorScreen extends StatefulWidget {
   State<CalculatorScreen> createState() => _CalculatorScreenState();
 }
 
-class _CalculatorScreenState extends State<CalculatorScreen> {
+class _CalculatorScreenState extends State<CalculatorScreen> with SingleTickerProviderStateMixin {
   String _input = '';
   String _result = '0';
   final List<CalculationHistoryItem> _history = [];
   final ScrollController _scrollController = ScrollController();
   final NumberFormat _currencyFormat = NumberFormat.currency(locale: 'en_IN', symbol: '₹');
+
+  bool _isCalculating = false;
+  late AnimationController _resultAnimController;
+  late Animation<double> _resultScaleAnim;
+  late Animation<double> _resultOpacityAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _resultAnimController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+
+    _resultScaleAnim = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _resultAnimController, curve: Curves.elasticOut),
+    );
+
+    _resultOpacityAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _resultAnimController, curve: Curves.easeIn),
+    );
+
+    _resultAnimController.forward();
+  }
+
+  @override
+  void dispose() {
+    _resultAnimController.dispose();
+    super.dispose();
+  }
+
+  void _triggerResultAnimation() {
+    setState(() {
+      _isCalculating = true;
+    });
+
+    _resultAnimController.reset();
+    _resultAnimController.forward().then((_) {
+      if (mounted) {
+        setState(() {
+          _isCalculating = false;
+        });
+      }
+    });
+  }
 
   void _onButtonPressed(String buttonText) {
     setState(() {
@@ -88,6 +135,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         _input = '';
         _scrollToBottom();
       });
+      _triggerResultAnimation();
     } catch (e) {
       setState(() {
         _result = 'Error';
@@ -129,11 +177,9 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text('Smart Bill Calculator'),
-        backgroundColor: Colors.blueAccent,
-        foregroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline),
@@ -142,228 +188,320 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Receipt View
-          Expanded(
-            child: Container(
-              margin: const EdgeInsets.all(16.0),
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withAlpha(25),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  )
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'RECEIPT',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 2,
-                    ),
-                  ),
-                  const Divider(),
-                  Expanded(
-                    child: ListView.builder(
-                      controller: _scrollController,
-                      itemCount: _history.length,
-                      itemBuilder: (context, index) {
-                        final item = _history[index];
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  item.formattedExpression,
-                                  style: const TextStyle(fontSize: 16, color: Colors.black87),
-                                  softWrap: true,
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Text(
-                                _currencyFormat.format(item.result),
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  const Divider(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: MathMeshBackground(
+        isCalculating: _isCalculating,
+        child: Column(
+          children: [
+            // Premium Receipt View
+            Expanded(
+              child: Card(
+                margin: const EdgeInsets.all(16.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Text(
-                        'TOTAL',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
                       Text(
-                        _currencyFormat.format(_totalBill),
-                        style: const TextStyle(
-                          fontSize: 22,
+                        'RECEIPT',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Colors.green,
+                          letterSpacing: 3,
+                          color: Colors.cyanAccent.withOpacity(0.8),
                         ),
+                      ),
+                      const Divider(color: Colors.white24, height: 24),
+                      Expanded(
+                        child: ListView.builder(
+                          controller: _scrollController,
+                          itemCount: _history.length,
+                          itemBuilder: (context, index) {
+                            final item = _history[index];
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      item.formattedExpression,
+                                      style: const TextStyle(fontSize: 16, color: Colors.white70),
+                                      softWrap: true,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Text(
+                                    _currencyFormat.format(item.result),
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const Divider(color: Colors.white24, height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'TOTAL',
+                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                          Text(
+                            _currencyFormat.format(_totalBill),
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.cyanAccent,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
+                ),
+              ),
+            ),
+
+            // Animated Input/Result Display
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+              alignment: Alignment.centerRight,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    reverse: true,
+                    child: Text(
+                      _input,
+                      style: TextStyle(fontSize: 28, color: Colors.white.withOpacity(0.6), fontWeight: FontWeight.w400, letterSpacing: 1.5),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 80,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: FadeTransition(
+                        opacity: _resultOpacityAnim,
+                        child: ScaleTransition(
+                          scale: _resultScaleAnim,
+                          child: Text(
+                            _result,
+                            style: const TextStyle(
+                              fontSize: 72,
+                              fontWeight: FontWeight.w300,
+                              color: Colors.white,
+                              shadows: [
+                                Shadow(color: Colors.cyanAccent, blurRadius: 20)
+                              ]
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
-          ),
 
-          // Input Display
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-            alignment: Alignment.centerRight,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  reverse: true,
-                  child: Text(
-                    _input,
-                    style: const TextStyle(fontSize: 24, color: Colors.black54),
-                  ),
+            // Premium Glassmorphic Tactile Keypad
+            SafeArea(
+              child: Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E293B).withOpacity(0.85),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+                  border: Border(top: BorderSide(color: Colors.white.withOpacity(0.05))),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.5),
+                      blurRadius: 20,
+                      offset: const Offset(0, -5),
+                    )
+                  ],
                 ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  height: 60,
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      _result,
-                      style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildButton('+5% GST', color: Colors.orange.withOpacity(0.2), textColor: Colors.orangeAccent),
+                        _buildButton('+18% GST', color: Colors.orange.withOpacity(0.2), textColor: Colors.orangeAccent),
+                        _buildButton('-10% Disc', color: Colors.green.withOpacity(0.2), textColor: Colors.greenAccent),
+                      ],
                     ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Custom Keypad
-          SafeArea(
-            child: Container(
-              padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(25),
-                  blurRadius: 10,
-                  offset: const Offset(0, -5),
-                )
-              ],
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildButton('+5% GST', color: Colors.orange[100]!, textColor: Colors.orange[900]!),
-                    _buildButton('+18% GST', color: Colors.orange[100]!, textColor: Colors.orange[900]!),
-                    _buildButton('-10% Disc', color: Colors.green[100]!, textColor: Colors.green[900]!),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildButton('C', color: Colors.red.withOpacity(0.2), textColor: Colors.redAccent),
+                        _buildButton('⌫', color: Colors.red.withOpacity(0.2), textColor: Colors.redAccent),
+                        _buildButton('%', color: Colors.white.withOpacity(0.05), textColor: Colors.cyanAccent),
+                        _buildButton('/', color: Colors.white.withOpacity(0.05), textColor: Colors.cyanAccent),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildButton('7'),
+                        _buildButton('8'),
+                        _buildButton('9'),
+                        _buildButton('x', color: Colors.white.withOpacity(0.05), textColor: Colors.cyanAccent),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildButton('4'),
+                        _buildButton('5'),
+                        _buildButton('6'),
+                        _buildButton('-', color: Colors.white.withOpacity(0.05), textColor: Colors.cyanAccent),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildButton('1'),
+                        _buildButton('2'),
+                        _buildButton('3'),
+                        _buildButton('+', color: Colors.white.withOpacity(0.05), textColor: Colors.cyanAccent),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildButton('00'),
+                        _buildButton('0'),
+                        _buildButton('.'),
+                        _buildButton('=', color: Colors.cyanAccent, textColor: const Color(0xFF0F172A), isEquals: true),
+                      ],
+                    ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildButton('C', color: Colors.red[100]!, textColor: Colors.red[900]!),
-                    _buildButton('⌫', color: Colors.red[100]!, textColor: Colors.red[900]!),
-                    _buildButton('%', color: Colors.grey[200]!),
-                    _buildButton('/', color: Colors.blue[100]!, textColor: Colors.blue[900]!),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildButton('7'),
-                    _buildButton('8'),
-                    _buildButton('9'),
-                    _buildButton('x', color: Colors.blue[100]!, textColor: Colors.blue[900]!),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildButton('4'),
-                    _buildButton('5'),
-                    _buildButton('6'),
-                    _buildButton('-', color: Colors.blue[100]!, textColor: Colors.blue[900]!),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildButton('1'),
-                    _buildButton('2'),
-                    _buildButton('3'),
-                    _buildButton('+', color: Colors.blue[100]!, textColor: Colors.blue[900]!),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildButton('00'),
-                    _buildButton('0'),
-                    _buildButton('.'),
-                    _buildButton('=', color: Colors.blueAccent, textColor: Colors.white),
-                  ],
-                ),
-              ],
-            ),
-          ))
-        ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildButton(String text, {Color color = Colors.white, Color textColor = Colors.black87}) {
-    return Material(
+  Widget _buildButton(String text, {Color? color, Color? textColor, bool isEquals = false}) {
+    color ??= Colors.white.withOpacity(0.02);
+    textColor ??= Colors.white;
+
+    return _CalculatorButton(
+      text: text,
       color: color,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () => _onButtonPressed(text),
+      textColor: textColor,
+      isEquals: isEquals,
+      onTap: () {
+        HapticFeedback.lightImpact();
+        _onButtonPressed(text);
+      },
+    );
+  }
+}
+
+class _CalculatorButton extends StatefulWidget {
+  final String text;
+  final Color color;
+  final Color textColor;
+  final bool isEquals;
+  final VoidCallback onTap;
+
+  const _CalculatorButton({
+    required this.text,
+    required this.color,
+    required this.textColor,
+    required this.isEquals,
+    required this.onTap,
+  });
+
+  @override
+  State<_CalculatorButton> createState() => _CalculatorButtonState();
+}
+
+class _CalculatorButtonState extends State<_CalculatorButton> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.9).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleTapDown(TapDownDetails details) {
+    _controller.forward();
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    _controller.reverse();
+    widget.onTap();
+  }
+
+  void _handleTapCancel() {
+    _controller.reverse();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: _handleTapDown,
+      onTapUp: _handleTapUp,
+      onTapCancel: _handleTapCancel,
+      child: ScaleTransition(
+        scale: _scaleAnimation,
         child: Container(
-          width: text.length > 5 ? 100 : 70,
-          height: 60,
+          width: widget.text.length > 5 ? 100 : 70,
+          height: 64,
+          margin: const EdgeInsets.all(2),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.withAlpha(50)),
-            borderRadius: BorderRadius.circular(12),
+            color: widget.color,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white.withOpacity(0.05)),
+            boxShadow: widget.isEquals ? [
+              BoxShadow(
+                color: widget.color.withOpacity(0.4),
+                blurRadius: 15,
+                spreadRadius: 1,
+              )
+            ] : null,
           ),
           child: Text(
-            text,
+            widget.text,
             style: TextStyle(
-              fontSize: text.length > 5 ? 14 : 24,
-              fontWeight: FontWeight.bold,
-              color: textColor,
+              fontSize: widget.text.length > 5 ? 14 : 26,
+              fontWeight: FontWeight.w400,
+              color: widget.textColor,
             ),
           ),
         ),

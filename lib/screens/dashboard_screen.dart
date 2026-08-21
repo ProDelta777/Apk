@@ -86,14 +86,15 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                   },
                 ),
               const SizedBox(height: 8),
-              const Text(
-                'Your all-in-one smart shop assistant.',
+              Text(
+                'Smart Calculation Suite',
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.black54,
+                  color: Colors.cyanAccent.withOpacity(0.7),
+                  letterSpacing: 1.2,
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
               Expanded(
                 child: GridView.count(
                   crossAxisCount: 2,
@@ -172,54 +173,63 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
     BuildContext context,
     String title,
     IconData icon,
-    Color color,
+    Color accentColor,
     Widget targetScreen,
   ) {
-    return Card(
-      elevation: 4,
-      shadowColor: color.withAlpha(50),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => targetScreen),
-          );
-        },
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.white,
-                color.withAlpha(25),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: accentColor.withOpacity(0.1),
+            blurRadius: 20,
+            spreadRadius: -5,
+          )
+        ],
+      ),
+      child: Card(
+        color: const Color(0xFF1E293B).withOpacity(0.7), // Glassmorphic dark slate
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: BorderSide(color: Colors.white.withOpacity(0.05), width: 1),
+        ),
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => targetScreen),
+            );
+          },
+          borderRadius: BorderRadius.circular(24),
+          splashColor: accentColor.withOpacity(0.2),
+          highlightColor: Colors.white.withOpacity(0.05),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: accentColor.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, size: 36, color: accentColor),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                    letterSpacing: 0.5,
+                  ),
+                ),
               ],
             ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: color.withAlpha(40),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, size: 40, color: color),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
           ),
         ),
       ),
