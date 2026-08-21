@@ -10,15 +10,16 @@ class CompassScreen extends StatefulWidget {
 }
 
 class _CompassScreenState extends State<CompassScreen> {
+  bool _isLocked = false;
+  double? _lockedHeading;
+
   // 16-point wind rose mapping
   String _getDirection(double? heading) {
     if (heading == null) return '--';
 
-    // Normalize heading to 0-360
     double h = heading % 360;
     if (h < 0) h += 360;
 
-    // 360 / 16 = 22.5 degrees per sector. Shift by 11.25 to center the sectors on the exact headings.
     final val = ((h / 22.5) + 0.5).floor() % 16;
     final directions = [
       'N', 'NNE', 'NE', 'ENE',
@@ -30,6 +31,17 @@ class _CompassScreenState extends State<CompassScreen> {
     return directions[val];
   }
 
+  // Very basic approximation for sun azimuth
+  double _getSunAzimuth() {
+    final now = DateTime.now();
+    final hours = now.hour + (now.minute / 60.0);
+    // Rough estimate: Sun is at 180 (South) at noon in Northern Hemisphere.
+    // 15 degrees per hour. 6 AM = 90 (East), 6 PM = 270 (West).
+    // This is heavily simplified and doesn't account for location.
+    double azimuth = 180 + ((hours - 12) * 15.0);
+    return azimuth % 360;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -39,6 +51,23 @@ class _CompassScreenState extends State<CompassScreen> {
         title: const Text('Compass'),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: Icon(
+              _isLocked ? Icons.lock : Icons.lock_open,
+              color: _isLocked ? theme.colorScheme.primary : null,
+            ),
+            onPressed: () {
+              setState(() {
+                _isLocked = !_isLocked;
+                if (!_isLocked) {
+                  _lockedHeading = null;
+                }
+              });
+            },
+            tooltip: 'Direction Lock',
+          ),
+        ],
       ),
       body: StreamBuilder<CompassEvent>(
         stream: FlutterCompass.events,
@@ -54,14 +83,12 @@ class _CompassScreenState extends State<CompassScreen> {
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
-          double? direction = snapshot.data?.heading;
+          double? actualDirection = snapshot.data?.heading;
 
-          if (direction == null) {
+          if (actualDirection == null) {
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
@@ -74,37 +101,35 @@ class _CompassScreenState extends State<CompassScreen> {
                       'Compass sensor not available',
                       style: theme.textTheme.titleLarge,
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Your device does not seem to have the required hardware (magnetometer) to use this tool.',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7)
-                      ),
-                    ),
                   ],
                 ),
               ),
             );
           }
 
-          // Use AnimatedRotation for smoother wrapping around 360/0 boundary
-          double turns = direction / 360.0;
+          if (_isLocked && _lockedHeading == null) {
+            _lockedHeading = actualDirection;
+          }
+
+          double displayDirection = _isLocked ? _lockedHeading! : actualDirection;
+          double turns = displayDirection / 360.0;
+          double sunAzimuth = _getSunAzimuth();
 
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                '${direction.toStringAsFixed(1)}°', // High accuracy readout
+                '${displayDirection.toStringAsFixed(1)}°',
                 style: theme.textTheme.displayLarge?.copyWith(
                   fontWeight: FontWeight.bold,
+                  color: _isLocked ? theme.colorScheme.primary : null,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
-                _getDirection(direction),
+                _getDirection(displayDirection),
                 style: theme.textTheme.headlineMedium?.copyWith(
-                  color: theme.colorScheme.primary,
+                  color: _isLocked ? theme.colorScheme.primary : theme.colorScheme.secondary,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 2,
                 ),
@@ -135,11 +160,28 @@ class _CompassScreenState extends State<CompassScreen> {
                           _buildDialMark(225, 'SW', theme, false, false),
                           _buildDialMark(270, 'W', theme, false, true),
                           _buildDialMark(315, 'NW', theme, false, false),
-                          for (double i = 0; i < 360; i += 22.5) // 16 ticks
+                          for (double i = 0; i < 360; i += 22.5)
                             if (i % 45 != 0) _buildTickMark(i, theme)
                         ],
                       ),
                     ),
+
+                    // Sun Tracker Indicator
+                    Positioned.fill(
+                      child: AnimatedRotation(
+                        turns: (sunAzimuth - displayDirection) / 360.0,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOut,
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: Container(
+                            margin: const EdgeInsets.only(top: 24),
+                            child: const Icon(Icons.wb_sunny, color: Colors.orange, size: 24),
+                          ),
+                        ),
+                      ),
+                    ),
+
                     // Compass needle
                     AnimatedRotation(
                       turns: -turns,
@@ -150,12 +192,13 @@ class _CompassScreenState extends State<CompassScreen> {
                         painter: _CompassNeedlePainter(theme.colorScheme.primary),
                       ),
                     ),
+
                     // Center dot
                     Container(
                       width: 16,
                       height: 16,
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.onBackground,
+                        color: theme.colorScheme.onSurface,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -163,21 +206,21 @@ class _CompassScreenState extends State<CompassScreen> {
                 ),
               ),
               const SizedBox(height: 48),
-              if (snapshot.data?.accuracy != null && snapshot.data!.accuracy! == 1) // 1 == low accuracy in Android SensorManager
+              if (_isLocked)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
+                    color: theme.colorScheme.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.warning_amber, color: Colors.orange, size: 20),
+                      Icon(Icons.lock, color: theme.colorScheme.primary, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        'Calibration needed (figure 8)',
-                        style: theme.textTheme.bodySmall?.copyWith(color: Colors.orange),
+                        'Direction Locked',
+                        style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.primary),
                       ),
                     ],
                   ),
@@ -202,7 +245,7 @@ class _CompassScreenState extends State<CompassScreen> {
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: isPrimary ? FontWeight.bold : FontWeight.normal,
                 fontSize: isPrimary ? null : 12,
-                color: isNorth ? Colors.red : (isPrimary ? theme.colorScheme.onBackground : theme.colorScheme.onBackground.withOpacity(0.6)),
+                color: isNorth ? Colors.red : (isPrimary ? theme.colorScheme.onSurface : theme.colorScheme.onSurface.withOpacity(0.6)),
               ),
             ),
           ),
@@ -221,7 +264,7 @@ class _CompassScreenState extends State<CompassScreen> {
             margin: const EdgeInsets.only(top: 10),
             width: 2,
             height: 8,
-            color: theme.colorScheme.onBackground.withOpacity(0.3),
+            color: theme.colorScheme.onSurface.withOpacity(0.3),
           ),
         ),
       ),

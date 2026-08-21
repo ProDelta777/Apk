@@ -10,6 +10,9 @@ import 'device_info_screen.dart';
 import 'games_screen.dart';
 import 'settings_screen.dart';
 import 'chat_screen.dart';
+import 'sensor_lab_screen.dart';
+import 'camera_measurement_screen.dart';
+import 'local_reminders_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -140,21 +143,39 @@ class _Tool {
 final _tools = [
   const _Tool(
     name: 'Compass',
-    description: '16-point tactical',
+    description: 'Advanced tracking',
     icon: Icons.explore,
     screen: CompassScreen(),
+  ),
+  const _Tool(
+    name: 'Flashlight',
+    description: 'Morse & SOS',
+    icon: Icons.flashlight_on,
+    screen: FlashlightScreen(),
+  ),
+  const _Tool(
+    name: 'Reminders',
+    description: 'Offline tasks',
+    icon: Icons.alarm,
+    screen: LocalRemindersScreen(),
+  ),
+  const _Tool(
+    name: 'Measurement',
+    description: 'Optical estimate',
+    icon: Icons.straighten,
+    screen: CameraMeasurementScreen(),
+  ),
+  const _Tool(
+    name: 'Sensor Lab',
+    description: 'Live telemetry',
+    icon: Icons.science,
+    screen: SensorLabScreen(),
   ),
   const _Tool(
     name: 'Comms',
     description: 'Offline Walkie',
     icon: Icons.bluetooth_connected,
     screen: ChatScreen(),
-  ),
-  const _Tool(
-    name: 'Flashlight',
-    description: 'Strobe & SOS',
-    icon: Icons.flashlight_on,
-    screen: FlashlightScreen(),
   ),
   const _Tool(
     name: 'My Location',
