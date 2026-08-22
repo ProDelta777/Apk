@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/dashboard_screen.dart';
+import 'screens/main_navigation_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -59,7 +59,7 @@ class MyApp extends StatelessWidget {
           hintStyle: TextStyle(color: Colors.grey.shade600),
         ),
       ),
-      home: const DashboardScreen(),
+      home: const MainNavigationScreen(),
     );
   }
 }
