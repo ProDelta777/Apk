@@ -8,6 +8,10 @@ import 'profit_calculator_screen.dart';
 import 'khata_screen.dart';
 import 'discount_calculator_screen.dart';
 import 'gst_calculator_screen.dart';
+import 'geometry_calculator_screen.dart';
+import 'algebra_calculator_screen.dart';
+import 'emi_calculator_screen.dart';
+import 'unit_converter_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -101,6 +105,38 @@ class DashboardScreen extends StatelessWidget {
                       const Color(0xFF1E293B),
                       const Color(0xFF14B8A6),
                       const ProfitCalculatorScreen(),
+                    ),
+                    _buildDashboardCard(
+                      context,
+                      'Geometry',
+                      Icons.category_outlined,
+                      const Color(0xFF1E293B),
+                      const Color(0xFFD946EF), // Fuchsia
+                      const GeometryCalculatorScreen(),
+                    ),
+                    _buildDashboardCard(
+                      context,
+                      'Algebra',
+                      Icons.functions_outlined,
+                      const Color(0xFF1E293B),
+                      const Color(0xFF8B5CF6), // Violet
+                      const AlgebraCalculatorScreen(),
+                    ),
+                    _buildDashboardCard(
+                      context,
+                      'EMI Loan',
+                      Icons.account_balance_outlined,
+                      const Color(0xFF1E293B),
+                      const Color(0xFF0EA5E9), // Sky Blue
+                      const EmiCalculatorScreen(),
+                    ),
+                    _buildDashboardCard(
+                      context,
+                      'Units',
+                      Icons.straighten_outlined,
+                      const Color(0xFF1E293B),
+                      const Color(0xFFEAB308), // Yellow
+                      const UnitConverterScreen(),
                     ),
                   ],
                 ),

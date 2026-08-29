@@ -127,7 +127,6 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -152,28 +151,32 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                         ),
                       ],
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          reverse: true,
-                          child: Text(
-                            _input.isEmpty ? _lastExpression : _input,
-                            style: const TextStyle(fontSize: 20, color: Colors.grey),
-                          ),
+                    const Spacer(),
+                    Container(
+                      constraints: const BoxConstraints(minHeight: 30),
+                      alignment: Alignment.centerRight,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        reverse: true,
+                        child: Text(
+                          _input.isEmpty ? _lastExpression : _input,
+                          style: const TextStyle(fontSize: 24, color: Colors.grey),
                         ),
-                        const SizedBox(height: 8),
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          reverse: true,
-                          child: Text(
-                            _result == '0' && _input.isEmpty ? '₹0' : _result,
-                            style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w400, color: Colors.white),
-                          ),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      constraints: const BoxConstraints(minHeight: 56),
+                      alignment: Alignment.centerRight,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        reverse: true,
+                        child: Text(
+                          _result == '0' && _input.isEmpty ? '₹0' : _result,
+                          style: const TextStyle(fontSize: 52, fontWeight: FontWeight.w400, color: Colors.white, height: 1.1),
                         ),
-                      ],
-                    )
+                      ),
+                    ),
                   ],
                 ),
               ),
