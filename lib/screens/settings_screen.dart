@@ -1,181 +1,126 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../main.dart';
+import 'package:provider/provider.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
-class SettingsScreen extends StatefulWidget {
+import '../providers/theme_provider.dart';
+import '../providers/progress_provider.dart';
+
+class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
-}
-
-class _SettingsScreenState extends State<SettingsScreen> {
-  bool _isDarkMode = true;
-  bool _hapticFeedback = true;
-  bool _soundEnabled = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSettings();
-  }
-
-  Future<void> _loadSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _isDarkMode = prefs.getBool('isDarkMode') ?? true;
-      _hapticFeedback = prefs.getBool('hapticFeedback') ?? true;
-      _soundEnabled = prefs.getBool('soundEnabled') ?? true;
-    });
-  }
-
-  Future<void> _resetGameScores() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('find_it_best');
-    await prefs.remove('quick_tap_best');
-    await prefs.remove('memory_best');
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Game scores reset locally.')),
-      );
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         children: [
-          _buildSectionHeader('Preferences', theme),
-          SwitchListTile(
-            title: const Text('Dark Mode'),
-            subtitle: const Text('Use dark theme across the app'),
-            value: _isDarkMode,
-            onChanged: (value) async {
-              setState(() => _isDarkMode = value);
-              OffgridApp.of(context).toggleTheme(value);
-            },
-          ),
-          SwitchListTile(
-            title: const Text('Haptic Feedback'),
-            subtitle: const Text('Vibrate on button presses (Games)'),
-            value: _hapticFeedback,
-            onChanged: (value) async {
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.setBool('hapticFeedback', value);
-              setState(() => _hapticFeedback = value);
-            },
-          ),
-          SwitchListTile(
-            title: const Text('Sound'),
-            subtitle: const Text('Play sound effects (Games)'),
-            value: _soundEnabled,
-            onChanged: (value) async {
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.setBool('soundEnabled', value);
-              setState(() => _soundEnabled = value);
-            },
-          ),
-
-          const SizedBox(height: 24),
-          _buildSectionHeader('Data Management', theme),
-          ListTile(
-            title: const Text('Reset Game Scores'),
-            subtitle: const Text('Clear local best scores'),
-            trailing: const Icon(Icons.delete_outline, color: Colors.red),
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Reset Scores?'),
-                  content: const Text('This will permanently delete your best scores for all mini games. This cannot be undone.'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('CANCEL'),
-                    ),
-                    FilledButton(
-                      style: FilledButton.styleFrom(backgroundColor: Colors.red),
-                      onPressed: () {
-                        Navigator.pop(context);
-                        _resetGameScores();
-                      },
-                      child: const Text('RESET'),
-                    ),
-                  ],
-                ),
+          _buildSectionHeader(context, 'Preferences'),
+          Consumer<ThemeProvider>(
+            builder: (context, themeProvider, child) {
+              return SwitchListTile(
+                title: const Text('Dark Mode'),
+                subtitle: const Text('Developer aesthetic'),
+                value: themeProvider.isDarkMode,
+                onChanged: (value) => themeProvider.toggleTheme(),
+                secondary: Icon(themeProvider.isDarkMode ? LucideIcons.moon : LucideIcons.sun),
+                activeColor: Theme.of(context).primaryColor,
               );
             },
           ),
-
-          const SizedBox(height: 32),
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: isDark ? Colors.blueGrey.withOpacity(0.1) : Colors.blueGrey.shade50,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: isDark ? Colors.blueGrey.withOpacity(0.3) : Colors.blueGrey.shade200,
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.privacy_tip, color: theme.colorScheme.primary),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Privacy & Offline Use',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'OFFGRID is designed to keep your information on your device. Core tools do not require an account, cloud database, or external API.\n\nAll sensor and location data is processed locally. Information is only shared when you explicitly use a share or copy action via Android\'s native systems.',
-                  style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
-                ),
-              ],
+          ListTile(
+            leading: const Icon(LucideIcons.languages),
+            title: const Text('Language'),
+            subtitle: const Text('English'),
+            trailing: const Icon(LucideIcons.chevronRight),
+            onTap: () {
+               ScaffoldMessenger.of(context).showSnackBar(
+                 const SnackBar(content: Text('More languages coming soon!'))
+               );
+            },
+          ),
+          ListTile(
+            leading: const Icon(LucideIcons.bell),
+            title: const Text('Notifications'),
+            trailing: Switch(
+              value: true,
+              onChanged: (val) {
+                 ScaffoldMessenger.of(context).showSnackBar(
+                   const SnackBar(content: Text('Notifications toggled!'))
+                 );
+              },
+              activeColor: Theme.of(context).primaryColor,
             ),
           ),
-
           const SizedBox(height: 24),
-          Center(
-            child: Text(
-              'OFFGRID v1.0.0',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: isDark ? Colors.grey[600] : Colors.grey[400],
-              ),
-            ),
+          _buildSectionHeader(context, 'Data & Progress'),
+          ListTile(
+            leading: const Icon(LucideIcons.refreshCw, color: Colors.red),
+            title: const Text('Reset Progress', style: TextStyle(color: Colors.red)),
+            subtitle: const Text('This action cannot be undone.'),
+            onTap: () => _showResetConfirmation(context),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
+          _buildSectionHeader(context, 'About'),
+          const ListTile(
+            leading: Icon(LucideIcons.info),
+            title: Text('About PRECODE'),
+            subtitle: Text('Offline programming education.'),
+          ),
+          const ListTile(
+            leading: Icon(LucideIcons.shield),
+            title: Text('Privacy Policy'),
+            subtitle: Text('All data is stored locally.'),
+          ),
+          const ListTile(
+            leading: Icon(LucideIcons.smartphone),
+            title: Text('App Version'),
+            trailing: Text('1.0.0'),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildSectionHeader(String title, ThemeData theme) {
+  Widget _buildSectionHeader(BuildContext context, String title) {
     return Padding(
-      padding: const EdgeInsets.only(left: 16, bottom: 8, top: 16),
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Text(
-        title,
-        style: theme.textTheme.labelLarge?.copyWith(
-          color: theme.colorScheme.primary,
+        title.toUpperCase(),
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: Theme.of(context).primaryColor,
           fontWeight: FontWeight.bold,
           letterSpacing: 1.2,
         ),
+      ),
+    );
+  }
+
+  void _showResetConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Reset Progress?'),
+        content: const Text('Are you sure you want to delete all your learning progress? This cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              context.read<ProgressProvider>().resetProgress();
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Progress reset successfully.'))
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Reset', style: TextStyle(color: Colors.white)),
+          ),
+        ],
       ),
     );
   }
