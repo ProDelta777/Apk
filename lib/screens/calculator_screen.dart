@@ -112,11 +112,11 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
             // Display Card (Glassmorphic)
             Expanded(
-              flex: 3,
+              flex: 4, // Increased flex to give display more robust breathing room
               child: Container(
                 width: double.infinity,
-                margin: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-                padding: const EdgeInsets.all(20.0),
+                margin: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0), // Added bottom margin to prevent overlap
+                padding: const EdgeInsets.all(24.0),
                 decoration: BoxDecoration(
                   color: const Color(0xFF1E293B),
                   borderRadius: BorderRadius.circular(24),
@@ -131,49 +131,57 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.copy_outlined, color: Colors.grey, size: 20),
-                          onPressed: _copyToClipboard,
-                          constraints: const BoxConstraints(),
-                          padding: EdgeInsets.zero,
+                        Semantics(
+                          label: 'Copy',
+                          child: IconButton(
+                            icon: const Icon(Icons.copy_outlined, color: Colors.grey, size: 20),
+                            onPressed: _copyToClipboard,
+                            constraints: const BoxConstraints(),
+                            padding: EdgeInsets.zero,
+                          ),
                         ),
                         const SizedBox(width: 16),
-                        IconButton(
-                          icon: const Icon(Icons.history_outlined, color: Colors.grey, size: 20),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const HistoryScreen()),
-                            );
-                          },
-                          constraints: const BoxConstraints(),
-                          padding: EdgeInsets.zero,
+                        Semantics(
+                          label: 'History',
+                          child: IconButton(
+                            icon: const Icon(Icons.history_outlined, color: Colors.grey, size: 20),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const HistoryScreen()),
+                              );
+                            },
+                            constraints: const BoxConstraints(),
+                            padding: EdgeInsets.zero,
+                          ),
                         ),
                       ],
                     ),
                     const Spacer(),
                     Container(
-                      constraints: const BoxConstraints(minHeight: 30),
-                      alignment: Alignment.centerRight,
+                      constraints: const BoxConstraints(maxHeight: 40),
+                      alignment: Alignment.bottomRight,
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         reverse: true,
                         child: Text(
                           _input.isEmpty ? _lastExpression : _input,
                           style: const TextStyle(fontSize: 24, color: Colors.grey),
+                          maxLines: 1,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 8),
                     Container(
-                      constraints: const BoxConstraints(minHeight: 56),
-                      alignment: Alignment.centerRight,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        reverse: true,
+                      constraints: const BoxConstraints(maxHeight: 70),
+                      alignment: Alignment.bottomRight,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.bottomRight,
                         child: Text(
                           _result == '0' && _input.isEmpty ? '₹0' : _result,
-                          style: const TextStyle(fontSize: 52, fontWeight: FontWeight.w400, color: Colors.white, height: 1.1),
+                          style: const TextStyle(fontSize: 60, fontWeight: FontWeight.w400, color: Colors.white, height: 1.0),
+                          maxLines: 1,
                         ),
                       ),
                     ),
